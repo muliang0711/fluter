@@ -12,34 +12,102 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final UserManager manager = UserManager();
-    final List<User> users = manager.getAllUsers();
-
     return MaterialApp(
-      title: 'User List App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      title: 'User List Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const UserScreen(),
+    );
+  }
+}
+
+/// ─────────────────────────────────────────────
+/// 3️⃣ UI Layer — Interacts with the user
+/// ─────────────────────────────────────────────
+class UserScreen extends StatefulWidget {
+  const UserScreen({super.key});
+
+  @override
+  State<UserScreen> createState() => _UserScreenState();
+}
+
+class _UserScreenState extends State<UserScreen> {
+  final UserManager manager = UserManager();
+  List<User> displayedUsers = [];
+
+  void _getAllUsers() {
+    setState(() {
+      displayedUsers = manager.getAllUsers();
+    });
+  }
+
+  void _getUserById(int id) {
+    User? foundUser = manager.getUserById(id);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'User ID $id → ${foundUser.name} (${foundUser.email})',
+        ),
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('User List'),
-        ),
-        body: ListView.builder(
-          itemCount: users.length,
-          itemBuilder: (context, index) {
-            final User user = users[index];
-            return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: ListTile(
-                leading: CircleAvatar(
-                  child: Text(user.id.toString()),
+    );
+  }
+
+  void _addUser() {
+    int newId = manager.getAllUsers().length + 1;
+    manager.addUser(
+      User(id: newId, name: 'User $newId', email: 'user$newId@example.com'),
+    );
+    _getAllUsers();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('User Manager')),
+      body: Column(
+        children: [
+          // ───── Buttons for Actions ─────
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Wrap(
+              spacing: 12,
+              children: [
+                ElevatedButton(
+                  onPressed: _getAllUsers,
+                  child: const Text('Get All Users'),
                 ),
-                title: Text(user.name),
-                subtitle: Text(user.email),
-              ),
-            );
-          },
-        ),
+                ElevatedButton(
+                  onPressed: () => _getUserById(2),
+                  child: const Text('Get User by ID = 2'),
+                ),
+                ElevatedButton(
+                  onPressed: _addUser,
+                  child: const Text('Add New User'),
+                ),
+              ],
+            ),
+          ),
+
+          const Divider(),
+
+          // ───── Display Users ─────
+          Expanded(
+            child: ListView.builder(
+              itemCount: displayedUsers.length,
+              itemBuilder: (context, index) {
+                final user = displayedUsers[index];
+                return Card(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: ListTile(
+                    leading: CircleAvatar(child: Text(user.id.toString())),
+                    title: Text(user.name),
+                    subtitle: Text(user.email),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -64,28 +132,20 @@ class User {
 /// 2️⃣ Entity Manager — Handles logic
 /// ─────────────────────────────────────────────
 class UserManager {
-  // Simulated list of users
   final List<User> _users = [
     User(id: 1, name: 'Alice', email: 'alice@example.com'),
     User(id: 2, name: 'Bob', email: 'bob@example.com'),
     User(id: 3, name: 'Charlie', email: 'charlie@example.com'),
   ];
 
-  // Get all users
-  List<User> getAllUsers() {
-    return _users;
-  }
+  List<User> getAllUsers() => _users;
 
-  // Add a new user
-  void addUser(User user) {
-    _users.add(user);
-  }
+  void addUser(User user) => _users.add(user);
 
-  // Find user by ID
-  User? getUserById(int id) {
+  User getUserById(int id) {
     return _users.firstWhere(
       (user) => user.id == id,
-      orElse: () => User(id: 0, name: 'Unknown', email: ''),
+      orElse: () => User(id: 0, name: 'Not Found', email: 'N/A'),
     );
   }
 }
