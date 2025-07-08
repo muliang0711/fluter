@@ -7,6 +7,7 @@ void main() {
 /// ─────────────────────────────────────────────
 /// 🏠 Main Application Entry
 /// ─────────────────────────────────────────────
+/// 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
@@ -28,6 +29,11 @@ class UserScreen extends StatefulWidget {
 
   @override
   State<UserScreen> createState() => _UserScreenState();
+  //  We use StatefulWidget because the user list will change.
+  //  createState() returns a _UserScreenState, which holds the mutable logic and UI.
+  //  UserScreen is like a "shell", and _UserScreenState is where the real logic lives.
+
+ 
 }
 
 class _UserScreenState extends State<UserScreen> {
@@ -35,7 +41,7 @@ class _UserScreenState extends State<UserScreen> {
   List<User> displayedUsers = [];
 
   void _getAllUsers() {
-    setState(() {
+    setState(() { // tells flutter something change rebuild the screen 
       displayedUsers = manager.getAllUsers();
     });
   }
