@@ -176,8 +176,7 @@ class TextStructure extends StatelessWidget {
 
           // START : --------- styling the inner input field (TextField)
           child: const TextField(
-            style: TextStyle(
-              // 👈 this is where we style the input text
+            style: TextStyle(// 👈 this is where we style the input text
               color: Colors.black,
               fontSize: 16,
               fontWeight: FontWeight.w500,
